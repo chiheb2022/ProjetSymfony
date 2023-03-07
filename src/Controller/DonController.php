@@ -5,94 +5,90 @@ namespace App\Controller;
 use App\Entity\Don;
 use App\Form\DonType;
 use App\Repository\DonRepository;
+use App\Service\EmailService;
+
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+
+#[Route('/don')]
 class DonController extends AbstractController
 {
-/*
-    #[Route('/dons', name: 'don_index')]
-    public function index(): Response
+
+
+    private $emailService;
+
+    public function __construct(EmailService $emailService)
     {
-        return $this->render('front/don/index.html.twig', [
-            'controller_name' => 'DonController',
-        ]);
+        $this->emailService = $emailService;
     }
 
-*/
-
-
-
-
-
-    #[Route('/dons', name: 'don_index', methods: ['GET'])]
+    #[Route('/', name: 'app_don_index', methods: ['GET'])]
     public function index(DonRepository $donRepository): Response
     {
-        $dons = $donRepository->findAll();
-
-        return $this->render('front/don/index.html.twig', [
-            'dons' => $dons,
+        return $this->render('don/index.html.twig', [
+            'dons' => $donRepository->findAll(),
         ]);
     }
 
-    #[Route('/dons/{id}', name: 'don_show', methods: ['GET'])]
-    public function show(Don $don): Response
-    {
-        return $this->render('front/don/show.html.twig', [
-            'don' => $don,
-        ]);
-    }
-
-    #[Route('/dons/new', name: 'don_new', methods: ['GET', 'POST'])]
-    public function new(Request $request): Response
+    #[Route('/new', name: 'app_don_new', methods: ['GET', 'POST'])]
+    public function new(Request $request, DonRepository $donRepository): Response
     {
         $don = new Don();
         $form = $this->createForm(DonType::class, $don);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($don);
-            $entityManager->flush();
+            $donRepository->save($don, true);
+            $this->emailService->sendEmail('chiheb.menjli1920@gmail.com', 'Nouvelle donation', 'Une nouvelle donation a été ajoutée.');
 
-            return $this->redirectToRoute('don_index');
+            return $this->redirectToRoute('app_don_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->render('front/don/new.html.twig', [
+        return $this->renderForm('don/new.html.twig', [
             'don' => $don,
-            'form' => $form->createView(),
+            'form' => $form,
+
+        ]);
+
+
+    }
+
+    #[Route('/{id}', name: 'app_don_show', methods: ['GET'])]
+    public function show(Don $don): Response
+    {
+        return $this->render('don/show.html.twig', [
+            'don' => $don,
         ]);
     }
 
-    #[Route('/dons/{id}/edit', name: 'don_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Don $don): Response
+    #[Route('/{id}/edit', name: 'app_don_edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request, Don $don, DonRepository $donRepository ): Response
     {
         $form = $this->createForm(DonType::class, $don);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->getDoctrine()->getManager()->flush();
+            $donRepository->save($don, true);
 
-            return $this->redirectToRoute('don_index');
+            return $this->redirectToRoute('app_don_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->render('front/don/edit.html.twig', [
+        return $this->renderForm('don/edit.html.twig', [
             'don' => $don,
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
-    #[Route('/dons/{id}', name: 'don_delete', methods: ['POST'])]
-    public function delete(Request $request, Don $don): Response
+    #[Route('/{id}', name: 'app_don_delete', methods: ['POST'])]
+    public function delete(Request $request, Don $don, DonRepository $donRepository): Response
     {
         if ($this->isCsrfTokenValid('delete'.$don->getId(), $request->request->get('_token'))) {
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->remove($don);
-            $entityManager->flush();
+            $donRepository->remove($don, true);
         }
 
-        return $this->redirectToRoute('don_index');
+        return $this->redirectToRoute('app_don_index', [], Response::HTTP_SEE_OTHER);
     }
 }

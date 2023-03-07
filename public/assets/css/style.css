@@ -1258,3 +1258,25 @@ h6 {
   font-size: 13px;
   color: #012970;
 }
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.pagination a {
+  display: inline-block;
+  padding: 6px 12px;
+  margin: 0 3px;
+  color: #333;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.pagination a.active {
+  color: #fff;
+  background-color: #007bff;
+  border-color: #007bff;
+}

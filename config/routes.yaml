@@ -2,7 +2,5 @@
 #    path: /
 #    controller: App\Controller\DefaultController::index
 
+ # Dons
 
-app_dons_index:
-  path: /dons
-  controller: App\Controller\DonController::index
