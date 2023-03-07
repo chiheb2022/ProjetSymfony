@@ -2,10 +2,16 @@
 
 namespace App\Controller;
 
+use App\Entity\Collecte;
 use App\Entity\Don;
+use App\Entity\Rendezvous;
+use App\Form\CollecteType;
 use App\Form\DonType;
+use App\Form\RendezvousType;
 use App\Repository\CategorieDRepository;
+use App\Repository\CollecteRepository;
 use App\Repository\DonRepository;
+use App\Repository\RendezvousRepository;
 use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,7 +32,164 @@ class BackController extends AbstractController
     }
 
 
-    // gestion Don
+    // GESTION COLLECTE ******************************
+///
+///
+///
+///
+///
+///
+///
+
+    #[Route('/collecte/', name: 'app_collecte_index_admin', methods: ['GET'])]
+    public function index_collecte_admin(CollecteRepository $collecteRepository , Request $request): Response
+    {
+        $this->getDoctrine()->getRepository(Collecte::class)->findAll();
+        return $this->render('back/collecte_admin/index.html.twig', [
+            'collectes' => $collecteRepository->findAll(),
+        ]);
+    }
+
+    #[Route('/collecte/new', name: 'app_collecte_new_admin', methods: ['GET', 'POST'])]
+    public function new_collete_admin(Request $request, CollecteRepository $collecteRepository , Don $don ): Response
+    {
+        $collecte = new Collecte();
+        $form = $this->createForm(CollecteType::class, $collecte);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $collecteRepository->save($collecte, true);
+
+            return $this->redirectToRoute('app_collecte_index_admin', [], Response::HTTP_SEE_OTHER);
+        }
+
+        return $this->renderForm('back/collecte_admin/new.html.twig', [
+            'collecte' => $collecte,
+            'form' => $form,
+        ]);
+    }
+
+    #[Route('/collecte/{id}', name: 'app_collecte_show_admin', methods: ['GET'])]
+    public function show_collete_admin(Collecte $collecte): Response
+    {
+        return $this->render('back/collecte_admin/show.html.twig', [
+            'collecte' => $collecte,
+        ]);
+    }
+
+    #[Route('/collecte/{id}/edit', name: 'app_collecte_edit_admin', methods: ['GET', 'POST'])]
+    public function edit_collete_admin(Request $request, Collecte $collecte, CollecteRepository $collecteRepository): Response
+    {
+        $form = $this->createForm(CollecteType::class, $collecte);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $collecteRepository->save($collecte, true);
+
+            return $this->redirectToRoute('app_collecte_index_admin', [], Response::HTTP_SEE_OTHER);
+        }
+
+        return $this->renderForm('back/collecte_admin/edit.html.twig', [
+            'collecte' => $collecte,
+            'form' => $form,
+        ]);
+    }
+
+    #[Route('/collecte/{id}', name: 'app_collecte_delete_admin', methods: ['POST'])]
+    public function delete_collete_admin(Request $request, Collecte $collecte, CollecteRepository $collecteRepository): Response
+    {
+        if ($this->isCsrfTokenValid('delete'.$collecte->getId(), $request->request->get('_token'))) {
+            $collecteRepository->remove($collecte, true);
+        }
+
+        return $this->redirectToRoute('app_collecte_index_admin', [], Response::HTTP_SEE_OTHER);
+    }
+
+
+    /////////// rendez vous ************
+    ///
+    ///
+    ///
+    ///
+    ///
+    ///
+    /// /////
+    ///
+    ///
+    ///
+    ///
+    #[Route('/rendezvous', name: 'app_rendezvous_index_admin', methods: ['GET'])]
+    public function index_rendezvous_admin(RendezvousRepository $rendezvousRepository): Response
+    {
+        return $this->render('back/rendezvous_admin/index.html.twig', [
+            'rendezvouses' => $rendezvousRepository->findAll(),
+        ]);
+    }
+
+    #[Route('/rendezvous/new', name: 'app_rendezvous_new_admin', methods: ['GET', 'POST'])]
+    public function new_rendezvous_admin(Request $request, RendezvousRepository $rendezvousRepository): Response
+    {
+        $rendezvou = new Rendezvous();
+        $form = $this->createForm(RendezvousType::class, $rendezvou);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $rendezvousRepository->save($rendezvou, true);
+
+            return $this->redirectToRoute('app_rendezvous_index_admin', [], Response::HTTP_SEE_OTHER);
+        }
+
+        return $this->renderForm('back/rendezvous_admin/new.html.twig', [
+            'rendezvou' => $rendezvou,
+            'form' => $form,
+        ]);
+    }
+
+    #[Route('/rendezvous/{id}', name: 'app_rendezvous_show_admin', methods: ['GET'])]
+    public function show_rendezvous_admin(Rendezvous $rendezvou): Response
+    {
+        return $this->render('back/rendezvous_admin/show.html.twig', [
+            'rendezvou' => $rendezvou,
+        ]);
+    }
+
+    #[Route('/rendezvous/{id}/edit', name: 'app_rendezvous_edit_admin', methods: ['GET', 'POST'])]
+    public function edit_rendezvous_admin(Request $request, Rendezvous $rendezvou, RendezvousRepository $rendezvousRepository): Response
+    {
+        $form = $this->createForm(RendezvousType::class, $rendezvou);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $rendezvousRepository->save($rendezvou, true);
+
+            return $this->redirectToRoute('app_rendezvous_index_admin', [], Response::HTTP_SEE_OTHER);
+        }
+
+        return $this->renderForm('back/rendezvous_admin/edit.html.twig', [
+            'rendezvou' => $rendezvou,
+            'form' => $form,
+        ]);
+    }
+
+    #[Route('/rendezvous/{id}', name: 'app_rendezvous_delete_admin', methods: ['POST'])]
+    public function delete_rendezvous_admin(Request $request, Rendezvous $rendezvou, RendezvousRepository $rendezvousRepository): Response
+    {
+        if ($this->isCsrfTokenValid('delete'.$rendezvou->getId(), $request->request->get('_token'))) {
+            $rendezvousRepository->remove($rendezvou, true);
+        }
+
+        return $this->redirectToRoute('app_rendezvous_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+
+
+
+    /// ************* rendez vous
+
+
+
+// END COLLECTE
+    // gestion Don ********************************************************************
 
     #[Route('/dons', name: 'app_don_home_admin', methods: ['GET'])]
     public function HomeDon(DonRepository $donRepository , CategorieDRepository $categorieDRepository , UserRepository $userRepository): Response

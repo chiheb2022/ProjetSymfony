@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Don;
 use App\Form\DonType;
 use App\Repository\DonRepository;
+use App\Repository\UserRepository;
 use App\Service\EmailService;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -26,10 +27,13 @@ class DonController extends AbstractController
     }
 
     #[Route('/', name: 'app_don_index', methods: ['GET'])]
-    public function index(DonRepository $donRepository): Response
+    public function index(DonRepository $donRepository ,userRepository $userRepository): Response
     {
+
+       $iduser = 3 ;
         return $this->render('don/index.html.twig', [
             'dons' => $donRepository->findAll(),
+            'User' => $userRepository-> find($iduser)
         ]);
     }
 
