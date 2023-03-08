@@ -27,10 +27,13 @@
 <section id="about" class="about">
     <div class="container" data-aos="fade-up">
         <div class="row gy-4">
+            {% for message in app.session.flashbag.get('success') %}
+                <div class="alert alert-success">{{ message }}</div>
+            {% endfor %}
+            {% if action != 3 %}   <a href="{{ path('app_don_new') }}" class="btn btn-primary">Ajouter un don</a>{% endif %}
 
-            <a href="{{ path('app_don_new') }}" class="btn btn-primary">Ajouter un don</a>
 
-    <table class="table">
+            <table class="table">
         <thead>
             <tr>
               {#  <th>Id</th>#}
@@ -48,13 +51,13 @@
               {#  <td>{{ don.id }}</td>#}
                 <td>{{ don.poids }}</td>
                 <td>{{ don.descriptionD }}</td>
-                <td>{{ don.etat }}</td>
+                <td>{% if don.etat == 3 %}<span class="badge bg-success">valide</span>{% endif %}{% if don.etat == 2 %}<span class="badge bg-danger">en cours</span>{% endif %}{% if don.etat == 1 %}<span class="badge bg-danger">disponible</span>{% endif %}</td>
                 <td>{{ don.idCategorie.nom }}</td>
                 <td>{{ don.date ? don.date|date('Y-m-d') : '' }}</td>
                 <td>
                     <a href="{{ path('app_don_show', {'id': don.id}) }}" class="btn btn-sm btn-info">Voir</a>
-                    <a href="{{ path('app_don_edit', {'id': don.id}) }}" class="btn btn-sm btn-warning">Modifier</a>
-                    {% if User.roles == 3 %}  <a href="{{ path('app_collecte_new', {'id': don.id}) }}" class="btn btn-sm btn-warning">Selectionne</a> {% endif %}
+                    {% if action != 3 %}   <a href="{{ path('app_don_edit', {'id': don.id}) }}" class="btn btn-sm btn-warning">Modifier</a>{% endif %}
+                    {% if User.roles == 3  and don.etat == 1 %}  <a href="{{ path('app_collecte_new', {'id': don.id}) }}" class="btn btn-sm btn-warning">Selectionne</a> {% endif %}
 
                 </td>
             </tr>
@@ -65,7 +68,9 @@
         {% endfor %}
         </tbody>
     </table>
-
+            <div class="pagination">
+                {{ knp_pagination_render(dons) }}
+            </div>
 
            </div>
     </div></section>

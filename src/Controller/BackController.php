@@ -247,7 +247,17 @@ class BackController extends AbstractController
     public function indexDon(categorieDRepository $categorieDRepository  , PaginatorInterface $paginator, Request $request , DonRepository $donRepository , ): Response
     {
       //  $dons = $this->getDoctrine()->getRepository(Don::class)->findByCategorie($idCategorie);
-        $dons = $this->getDoctrine()->getRepository(Don::class)->findAll();
+       // $categorie = $this->getParameter(categorie);
+        $categorie = null ;
+
+        $request->query->has('categorie');
+        $categorie = $request->query->get('categorie');
+        if ($categorie != 0) {
+            $dons = $this->getDoctrine()->getRepository(Don::class)->findBy(['idCategorie' => $categorie]);
+        } else {
+            $dons = $this->getDoctrine()->getRepository(Don::class)->findAll();
+        }
+
        // $dons = $this->getDoctrine()->getRepository(Don::class)->findBy([],['created_at' => 'desc']);
         $pagination = $paginator->paginate(
             $dons,
